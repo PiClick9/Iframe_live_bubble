@@ -74,6 +74,7 @@
         height: 52px;
         object-fit: contain;
         transition: transform 0.6s ease;
+        z-index: 10;
       }
 
       .ad-products {
@@ -81,6 +82,7 @@
         align-items: center;
         height: 100%;
         transition: transform 0.6s ease;
+        z-index: 15;
       }
       .product-image-wrapper {
         width: 150px;
@@ -96,6 +98,7 @@
         width: 90px;
         height: 90%;
         object-fit: contain;
+        z-index: 15;
       }
       .product-image-hover {
         position: absolute;
@@ -103,15 +106,16 @@
         right: -18%;
         width: 50%;
         height: 100%;
-        z-index: 30;
         opacity: 0;
         transition: opacity 0.3s ease;
         object-fit: contain;
+        z-index: 40; /* 텍스트보다 아래 */
       }
       .in-image-ad:hover .product-image-hover {
         opacity: 1;
       }
 
+      /* 중앙 텍스트는 최상단 */
       .ad-text {
         position: absolute;
         left: 50%;
@@ -125,25 +129,44 @@
         color: #000;
         white-space: nowrap;
         pointer-events: none;
+        z-index: 60; /* 최상단 */
       }
       .ad-line1 {
         font-size: 14px;
-        color: #000;
       }
       .ad-line2 {
         font-size: 20px;
-        font-weight: bold;
-        color: #ffae00;
+        font-weight: 800;
       }
       .font-g {
-        color: #ffae00;
         font-weight: 800;
         font-size: 24px;
       }
       .font-r {
-        color: #ffae00;
         font-weight: 800;
         font-size: 24px;
+      }
+
+      /* CTA 버튼: 텍스트 밑에 고정. 텍스트보단 아래, 호버 시 숨김 */
+      .ad-cta {
+        position: absolute;
+        left: 50%;
+        top: calc(50% + 26px);
+        transform: translateX(-50%);
+        padding: 8px 14px;
+        border: 0;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+        opacity: 1;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        z-index: 55; /* 텍스트 아래, 호버이미지 위 */
+        cursor: pointer;
+      }
+      .in-image-ad:hover .ad-cta {
+        opacity: 0;
+        pointer-events: none;
       }
 
       .bubble {
@@ -154,6 +177,8 @@
         border-radius: 50%;
         background-color: rgba(0, 150, 136, 0.3);
         animation: bubbleUp 2s ease forwards;
+        z-index: 1;
+        pointer-events: none;
       }
       @keyframes bubbleUp {
         0% {
@@ -218,7 +243,10 @@
             />
           </span>
         </div>
+
+        <!-- 가운데 텍스트 -->
         <div class="ad-text" id="adText">시원한 레몬에이드 한 잔!</div>
+        <!-- 텍스트 아래 CTA -->
         <button class="ad-cta" id="ctaBtn">구매하기</button>
       </div>
     </div>
@@ -230,24 +258,24 @@
           logo: qs.get('logo') || '{IMAGE_LOGO}',
           product: qs.get('product') || '{IMAGE1}',
           hover: qs.get('hover') || '{IMAGE2}',
-          pixel: qs.get('pixel') || '{PIXEL_TRACKER}',
-
           brand: qs.get('brand') || '{NAME}',
           line1: qs.get('line1') || '{TEXT1}',
           line2: qs.get('line2') || '{TEXT2}',
-          nameClolor: qs.get('nameClolor') || '{NAME_COLOR}',
-          lineClolor1: qs.get('lineClolor1') || '{TEXT_COLOR1}',
-          lineClolor2: qs.get('lineClolor2') || '{TEXT_COLOR2}',
+          nameClolor: qs.get('nameClolor') || '#000',
+          lineClolor1: qs.get('lineClolor1') || '#000',
+          lineClolor2: qs.get('lineClolor2') || '#ffae00',
           ctaText: qs.get('ctaText') || '구매하기',
-          ctaBg: qs.get('ctaBg') || '{CTA_BG}',
-          ctaColor: qs.get('ctaColor') || '{CTA_COLOR}',
+          ctaBg: qs.get('ctaBg') || '#ffae00',
+          ctaColor: qs.get('ctaColor') || '#fff',
           cta: qs.get('cta') || '{CLICK_URL}', // 버튼 전용 이동
           click: qs.get('click') || '{CLICK_URL}', // 배너 전체 클릭
-          bg: qs.get('bg') || '{BACKGROUND_COLOR}',
+          bg: qs.get('bg') || '#ffe882',
           autohide: parseInt(qs.get('autohide') || '0', 10) || 0,
           imp: qs.get('imp') || '',
-
-          // 사이즈/맞춤
+          adBgType: qs.get('adBgType') || '',
+          adBgSolid: qs.get('adBgSolid') || '#fffcef',
+          adBgStart: qs.get('adBgStart') || '#f7ffef',
+          adBgEnd: qs.get('adBgEnd') || '#c1c9b1',
           logoW: qs.get('logoW') || '',
           logoH: qs.get('logoH') || '',
           logoFit: qs.get('logoFit') || '',
@@ -257,29 +285,19 @@
           hoverW: qs.get('hoverW') || '',
           hoverH: qs.get('hoverH') || '',
           hoverFit: qs.get('hoverFit') || '',
-
-          // 배너 본체 배경(.in-image-ad)
-          adBgType: qs.get('adBgType') || '', // '', 'solid', 'gradient'
-          adBgSolid: qs.get('adBgSolid') || '{AD_COLOR}',
-          adBgStart: qs.get('adBgStart') || '#f7ffef',
-          adBgEnd: qs.get('adBgEnd') || '#c1c9b1',
         };
 
         const inImageAd = document.getElementById('inImageAd');
         const inImageBg = document.getElementById('inImageBg');
-        const pixel = document.getElementById('pixel');
         const adLogo = document.getElementById('adLogo');
         const adProduct = document.getElementById('adProduct');
         const prodWrap = document.getElementById('prodWrap');
         const prodBase = document.getElementById('prodBase');
         const prodHover = document.getElementById('prodHover');
-        const brandTx = document.getElementById('brandText');
         const adText = document.getElementById('adText');
-        const line1Tx = document.getElementById('line1');
-        const line2Tx = document.getElementById('line2');
         const ctaBtn = document.getElementById('ctaBtn');
 
-        // 하단 바 색
+        // 색, 배경
         inImageBg.style.backgroundColor = params.bg;
         adText.style.color = params.nameClolor;
 
@@ -289,25 +307,24 @@
         prodHover.src = params.hover;
         adText.textContent = params.brand;
 
-        // 이미지 로드 실패 시 대체(투명 1x1)
-        const Fallback = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
-        adLogo.onerror = () => (adLogo.src = Fallback);
-        prodBase.onerror = () => (prodBase.src = Fallback);
-        prodHover.onerror = () => (prodHover.src = Fallback);
+        // CTA 세팅
+        ctaBtn.textContent = params.ctaText;
+        ctaBtn.style.backgroundColor = params.ctaBg;
+        ctaBtn.style.color = params.ctaColor;
 
-        // 배너 본체 배경 적용
+        // 배너 배경
         (function applyAdBackground() {
           const t = (params.adBgType || '').toLowerCase();
           if (t === 'solid') {
-            inImageAd.style.background = params.adBgSolid || '#e6edde';
+            inImageAd.style.background = params.adBgSolid || '#fffcef';
           } else if (t === 'gradient') {
             const s = params.adBgStart || '#f7ffef';
             const e = params.adBgEnd || '#c1c9b1';
             inImageAd.style.background = `linear-gradient(to right, ${s} 0%, ${s} 10%, ${e} 100%)`;
-          } // else 기본 CSS 유지
+          }
         })();
 
-        // 크기/맞춤 적용
+        // 크기/맞춤
         function applyDim(el, w, h, fit) {
           if (!el) return;
           if (w) el.style.width = w;
@@ -320,24 +337,29 @@
         applyDim(prodBase, params.productW, params.productH, params.productFit);
         applyDim(prodHover, params.hoverW, params.hoverH, params.hoverFit);
 
-        // 트래킹/오토하이드/클릭
-        if (params.imp) {
-          const t = new Image();
-          t.src = params.imp;
-        }
+        // 트래킹/오토하이드
+        if (params.imp) new Image().src = params.imp;
         if (params.autohide > 0) {
           setTimeout(() => {
             inImageAd.style.display = 'none';
             inImageBg.style.display = 'none';
           }, params.autohide * 1000);
         }
+
+        // 클릭 분기
         if (params.click) {
-          inImageAd.addEventListener('click', () => {
-            window.open(params.click, '_blank', 'noopener');
+          inImageAd.addEventListener('click', () =>
+            window.open(params.click, '_blank', 'noopener')
+          );
+        }
+        if (params.cta) {
+          ctaBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.open(params.cta, '_blank', 'noopener');
           });
         }
 
-        // 버블 애니메이션
+        // 버블
         let defaultBubbleInterval = null,
           hoverBubbleInterval = null;
         function startDefaultBubbles() {
@@ -358,15 +380,21 @@
           defaultBubbleInterval = null;
         }
 
+        // 호버: 텍스트1/2 표시 + 색상 적용 + 버블 가속
         inImageAd.addEventListener('mouseenter', () => {
           adText.innerHTML = `<div class="ad-line1" id="line1">${escapeHtml(params.line1)}</div>
-             <div class="ad-line2" id="line2"><span class="font-g">${escapeHtml(
-               params.line2
-             )}</span>
-             <span class="font-r">${escapeHtml(params.line2)}</span></div>`;
+             <div class="ad-line2" id="line2">
+               <span class="font-g">${escapeHtml(params.line2)}</span>
+               <span class="font-r">${escapeHtml(params.line2)}</span>
+             </div>`;
+
+          // 새로 삽입된 엘리먼트 색상 적용
+          const l1 = document.getElementById('line1');
+          const l2 = document.getElementById('line2');
+          if (l1) l1.style.color = params.lineClolor1;
+          if (l2) l2.style.color = params.lineClolor2;
+
           stopDefaultBubbles();
-          line1Tx.style.color = params.lineClolor1;
-          line2Tx.style.color = params.lineClolor2;
           if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
           hoverBubbleInterval = setInterval(() => {
             for (let i = 0; i < 5; i++) {
@@ -380,6 +408,7 @@
           }, 500);
         });
 
+        // 호버 해제: 브랜드명 복귀 + 버블 기본 모드
         inImageAd.addEventListener('mouseleave', () => {
           adText.textContent = `${escapeHtml(params.brand)}`;
           if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
@@ -390,18 +419,17 @@
         function escapeHtml(s) {
           return String(s)
             .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
+            .replace(/</g, '&lt/')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
         }
 
-        // ----- 핵심: DOM 준비 즉시 표시 (이미지 로드와 무관) -----
+        // 표시
         function showBanner() {
           inImageAd.classList.add('visible');
           inImageBg.classList.add('visible');
 
-          // 초기 분리 모션 + 텍스트 페이드인
           setTimeout(() => {
             adLogo.classList.add('move-left');
             adProduct.classList.add('move-right');
@@ -416,37 +444,14 @@
           startDefaultBubbles();
         }
 
-        // DOMContentLoaded 기준으로 즉시 실행
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(showBanner));
         } else {
           requestAnimationFrame(showBanner);
         }
-
-        // 최후 보루: 1초 뒤에도 안 떴으면 강제 표시
         setTimeout(() => {
           if (!inImageAd.classList.contains('visible')) showBanner();
         }, 1000);
-
-        try {
-          const params = new URLSearchParams(location.search);
-          if (params.get('postClick') === '1') {
-            const previewId = params.get('previewId') || '';
-            // 부모에게 보낼 대상 origin을 명시 (보안)
-            const parentOrigin = location.origin; // 예: https://piclick9.github.io (템플릿이 호스팅된 origin)
-
-            // 문서 어디든 클릭 시 부모에 신호 전송
-            document.addEventListener('click', function () {
-              // 부모가 신뢰할 수 있는 origin 목록에서 이 origin을 허용해야 함
-              window.parent?.postMessage(
-                { type: 'AISUM_IFRAME_CLICK', previewId },
-                '*' // 부모가 origin 체크를 하므로 여기선 * 사용 가능
-              );
-            });
-          }
-        } catch (e) {
-          console.warn('postMessage init failed:', e);
-        }
       })();
     </script>
   </body>
