@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>In-Image Ad v2</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: transparent;
+        font-family: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Noto Sans KR', sans-serif;
+      }
+
+      .in-image-bg {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 63px;
+        background-color: #ffe882;
+        z-index: 5;
+        transform: translateY(100%);
+        transition: transform 0.6s ease, opacity 0.6s ease;
+        opacity: 0;
+      }
+      .in-image-bg.visible {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .in-image-ad {
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%) translateY(100%);
+        width: 600px;
+        max-width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        background: #fffcef;
+        opacity: 0;
+        z-index: 10;
+        transition: transform 0.6s ease, opacity 0.6s ease;
+        overflow: visible;
+        cursor: pointer;
+      }
+      .in-image-ad.visible {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      .ad-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+        padding: 0 15px;
+        gap: 40px;
+        position: relative;
+      }
+
+      .ad-logo {
+        width: 69px;
+        height: 52px;
+        object-fit: contain;
+        transition: transform 0.6s ease;
+      }
+
+      .ad-products {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        transition: transform 0.6s ease;
+      }
+      .product-image-wrapper {
+        width: 150px;
+        height: 100%;
+        display: flex;
+        justify-content: end;
+        align-items: flex-end;
+        overflow: visible;
+        position: relative;
+        border-radius: 10px;
+      }
+      .product-image {
+        width: 90px;
+        height: 90%;
+        object-fit: contain;
+      }
+      .product-image-hover {
+        position: absolute;
+        top: -50px;
+        right: -18%;
+        width: 50%;
+        height: 100%;
+        z-index: 30;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        object-fit: contain;
+      }
+      .in-image-ad:hover .product-image-hover {
+        opacity: 1;
+      }
+
+      .ad-text {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) !important;
+        opacity: 0;
+        transition: opacity 0.6s ease, transform 0.6s ease;
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        color: #000;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .ad-line1 {
+        font-size: 14px;
+        color: #000;
+      }
+      .ad-line2 {
+        font-size: 20px;
+        font-weight: bold;
+        color: #ffae00;
+      }
+      .font-g {
+        color: #ffae00;
+        font-weight: 800;
+        font-size: 24px;
+      }
+      .font-r {
+        color: #ffae00;
+        font-weight: 800;
+        font-size: 24px;
+      }
+
+      .bubble {
+        position: absolute;
+        bottom: 10px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: rgba(0, 150, 136, 0.3);
+        animation: bubbleUp 2s ease forwards;
+      }
+      @keyframes bubbleUp {
+        0% {
+          transform: translateY(0) scale(0.8);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-80px) scale(1.2);
+          opacity: 0;
+        }
+      }
+
+      .move-left {
+        animation: moveLeft 0.6s ease forwards;
+        position: absolute;
+      }
+      .move-right {
+        animation: moveRight 0.6s ease forwards;
+        position: absolute;
+      }
+      @keyframes moveLeft {
+        0% {
+          left: 50%;
+          transform: translateX(-100%);
+        }
+        100% {
+          left: 20px;
+          transform: none;
+        }
+      }
+      @keyframes moveRight {
+        0% {
+          right: 50%;
+          transform: translateX(100%);
+        }
+        100% {
+          right: 0;
+          transform: none;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .in-image-ad {
+          height: 80px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="in-image-bg" id="inImageBg"></div>
+    <div class="in-image-ad" id="inImageAd" role="button" aria-label="광고 배너">
+      <div class="ad-content">
+        <img class="ad-logo" id="adLogo" alt="브랜드 로고" decoding="async" />
+        <div class="ad-products" id="adProduct">
+          <span class="product-image-wrapper" id="prodWrap">
+            <img class="product-image" id="prodBase" alt="제품 이미지" decoding="async" />
+            <img
+              class="product-image-hover"
+              id="prodHover"
+              alt="제품 이미지(호버)"
+              decoding="async"
+            />
+          </span>
+        </div>
+        <div class="ad-text" id="adText">시원한 레몬에이드 한 잔!</div>
+        <button class="ad-cta" id="ctaBtn">구매하기</button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const qs = new URLSearchParams(location.search);
+        const params = {
+          logo: qs.get('logo') || '{IMAGE_LOGO}',
+          product: qs.get('product') || '{IMAGE1}',
+          hover: qs.get('hover') || '{IMAGE2}',
+          pixel: qs.get('pixel') || '{PIXEL_TRACKER}',
+
+          brand: qs.get('brand') || '{NAME}',
+          line1: qs.get('line1') || '{TEXT1}',
+          line2: qs.get('line2') || '{TEXT2}',
+          nameClolor: qs.get('nameClolor') || '{NAME_COLOR}',
+          lineClolor1: qs.get('lineClolor1') || '{TEXT_COLOR1}',
+          lineClolor2: qs.get('lineClolor2') || '{TEXT_COLOR2}',
+          ctaText: qs.get('ctaText') || '구매하기',
+          ctaBg: qs.get('ctaBg') || '{CTA_BG}',
+          ctaColor: qs.get('ctaColor') || '{CTA_COLOR}',
+          cta: qs.get('cta') || '{CLICK_URL}', // 버튼 전용 이동
+          click: qs.get('click') || '{CLICK_URL}', // 배너 전체 클릭
+          bg: qs.get('bg') || '{BACKGROUND_COLOR}',
+          autohide: parseInt(qs.get('autohide') || '0', 10) || 0,
+          imp: qs.get('imp') || '',
+
+          // 사이즈/맞춤
+          logoW: qs.get('logoW') || '',
+          logoH: qs.get('logoH') || '',
+          logoFit: qs.get('logoFit') || '',
+          productW: qs.get('productW') || '',
+          productH: qs.get('productH') || '',
+          productFit: qs.get('productFit') || '',
+          hoverW: qs.get('hoverW') || '',
+          hoverH: qs.get('hoverH') || '',
+          hoverFit: qs.get('hoverFit') || '',
+
+          // 배너 본체 배경(.in-image-ad)
+          adBgType: qs.get('adBgType') || '', // '', 'solid', 'gradient'
+          adBgSolid: qs.get('adBgSolid') || '{AD_COLOR}',
+          adBgStart: qs.get('adBgStart') || '#f7ffef',
+          adBgEnd: qs.get('adBgEnd') || '#c1c9b1',
+        };
+
+        const inImageAd = document.getElementById('inImageAd');
+        const inImageBg = document.getElementById('inImageBg');
+        const pixel = document.getElementById('pixel');
+        const adLogo = document.getElementById('adLogo');
+        const adProduct = document.getElementById('adProduct');
+        const prodWrap = document.getElementById('prodWrap');
+        const prodBase = document.getElementById('prodBase');
+        const prodHover = document.getElementById('prodHover');
+        const brandTx = document.getElementById('brandText');
+        const adText = document.getElementById('adText');
+        const line1Tx = document.getElementById('line1');
+        const line2Tx = document.getElementById('line2');
+        const ctaBtn = document.getElementById('ctaBtn');
+
+        // 하단 바 색
+        inImageBg.style.backgroundColor = params.bg;
+        adText.style.color = params.nameClolor;
+
+        // 이미지/텍스트
+        adLogo.src = params.logo;
+        prodBase.src = params.product;
+        prodHover.src = params.hover;
+        adText.textContent = params.brand;
+
+        // 이미지 로드 실패 시 대체(투명 1x1)
+        const Fallback = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+        adLogo.onerror = () => (adLogo.src = Fallback);
+        prodBase.onerror = () => (prodBase.src = Fallback);
+        prodHover.onerror = () => (prodHover.src = Fallback);
+
+        // 배너 본체 배경 적용
+        (function applyAdBackground() {
+          const t = (params.adBgType || '').toLowerCase();
+          if (t === 'solid') {
+            inImageAd.style.background = params.adBgSolid || '#e6edde';
+          } else if (t === 'gradient') {
+            const s = params.adBgStart || '#f7ffef';
+            const e = params.adBgEnd || '#c1c9b1';
+            inImageAd.style.background = `linear-gradient(to right, ${s} 0%, ${s} 10%, ${e} 100%)`;
+          } // else 기본 CSS 유지
+        })();
+
+        // 크기/맞춤 적용
+        function applyDim(el, w, h, fit) {
+          if (!el) return;
+          if (w) el.style.width = w;
+          if (h) el.style.height = h;
+          if (fit) el.style.objectFit = fit;
+        }
+        applyDim(adLogo, params.logoW, params.logoH, params.logoFit);
+        if (params.productW) prodWrap.style.width = params.productW;
+        if (params.productH) prodWrap.style.height = params.productH;
+        applyDim(prodBase, params.productW, params.productH, params.productFit);
+        applyDim(prodHover, params.hoverW, params.hoverH, params.hoverFit);
+
+        // 트래킹/오토하이드/클릭
+        if (params.imp) {
+          const t = new Image();
+          t.src = params.imp;
+        }
+        if (params.autohide > 0) {
+          setTimeout(() => {
+            inImageAd.style.display = 'none';
+            inImageBg.style.display = 'none';
+          }, params.autohide * 1000);
+        }
+        if (params.click) {
+          inImageAd.addEventListener('click', () => {
+            window.open(params.click, '_blank', 'noopener');
+          });
+        }
+
+        // 버블 애니메이션
+        let defaultBubbleInterval = null,
+          hoverBubbleInterval = null;
+        function startDefaultBubbles() {
+          if (defaultBubbleInterval) return;
+          defaultBubbleInterval = setInterval(() => {
+            for (let i = 0; i < 3; i++) {
+              const b = document.createElement('span');
+              b.className = 'bubble';
+              b.style.left = `${Math.random() * 20 + 75}%`;
+              b.style.animationDelay = `${Math.random()}s`;
+              inImageAd.appendChild(b);
+              b.addEventListener('animationend', () => b.remove());
+            }
+          }, 3000);
+        }
+        function stopDefaultBubbles() {
+          if (defaultBubbleInterval) clearInterval(defaultBubbleInterval);
+          defaultBubbleInterval = null;
+        }
+
+        inImageAd.addEventListener('mouseenter', () => {
+          adText.innerHTML = `<div class="ad-line1" id="line1">${escapeHtml(params.line1)}</div>
+             <div class="ad-line2" id="line2"><span class="font-g">${escapeHtml(
+               params.line2
+             )}</span>
+             <span class="font-r">${escapeHtml(params.line2)}</span></div>`;
+          stopDefaultBubbles();
+          line1Tx.style.color = params.lineClolor1;
+          line2Tx.style.color = params.lineClolor2;
+          if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
+          hoverBubbleInterval = setInterval(() => {
+            for (let i = 0; i < 5; i++) {
+              const b = document.createElement('span');
+              b.className = 'bubble';
+              b.style.left = `${Math.random() * 20 + 75}%`;
+              b.style.animationDelay = `${Math.random()}s`;
+              inImageAd.appendChild(b);
+              b.addEventListener('animationend', () => b.remove());
+            }
+          }, 500);
+        });
+
+        inImageAd.addEventListener('mouseleave', () => {
+          adText.textContent = `${escapeHtml(params.brand)}`;
+          if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
+          hoverBubbleInterval = null;
+          startDefaultBubbles();
+        });
+
+        function escapeHtml(s) {
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        // ----- 핵심: DOM 준비 즉시 표시 (이미지 로드와 무관) -----
+        function showBanner() {
+          inImageAd.classList.add('visible');
+          inImageBg.classList.add('visible');
+
+          // 초기 분리 모션 + 텍스트 페이드인
+          setTimeout(() => {
+            adLogo.classList.add('move-left');
+            adProduct.classList.add('move-right');
+            setTimeout(() => {
+              requestAnimationFrame(() => {
+                adText.style.opacity = '1';
+                adText.style.transform = 'scale(1)';
+              });
+            }, 400);
+          }, 600);
+
+          startDefaultBubbles();
+        }
+
+        // DOMContentLoaded 기준으로 즉시 실행
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(showBanner));
+        } else {
+          requestAnimationFrame(showBanner);
+        }
+
+        // 최후 보루: 1초 뒤에도 안 떴으면 강제 표시
+        setTimeout(() => {
+          if (!inImageAd.classList.contains('visible')) showBanner();
+        }, 1000);
+
+        try {
+          const params = new URLSearchParams(location.search);
+          if (params.get('postClick') === '1') {
+            const previewId = params.get('previewId') || '';
+            // 부모에게 보낼 대상 origin을 명시 (보안)
+            const parentOrigin = location.origin; // 예: https://piclick9.github.io (템플릿이 호스팅된 origin)
+
+            // 문서 어디든 클릭 시 부모에 신호 전송
+            document.addEventListener('click', function () {
+              // 부모가 신뢰할 수 있는 origin 목록에서 이 origin을 허용해야 함
+              window.parent?.postMessage(
+                { type: 'AISUM_IFRAME_CLICK', previewId },
+                '*' // 부모가 origin 체크를 하므로 여기선 * 사용 가능
+              );
+            });
+          }
+        } catch (e) {
+          console.warn('postMessage init failed:', e);
+        }
+      })();
+    </script>
+  </body>
+</html>
