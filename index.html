@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang='ko'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no' />
     <title>In-Image Ad v2</title>
     <style>
       * {
@@ -124,27 +124,28 @@
         opacity: 0;
         transition: opacity 0.6s ease, transform 0.6s ease;
         text-align: center;
-        font-weight: bold;
-        font-size: 20px;
+        font-weight: 700;
+        font-size: 13.47px;
         color: #000;
         white-space: nowrap;
         pointer-events: none;
         z-index: 60; /* 최상단 */
       }
       .ad-line1 {
-        font-size: 14px;
+        font-size: 8px;
+        font-weight: 600;
       }
       .ad-line2 {
-        font-size: 20px;
+        font-size: 14px;
         font-weight: 800;
       }
       .font-g {
         font-weight: 800;
-        font-size: 24px;
+        font-size: 14px;
       }
       .font-r {
         font-weight: 800;
-        font-size: 24px;
+        font-size: 14px;
       }
 
       /* CTA 버튼: 텍스트 밑에 고정. 텍스트보단 아래, 호버 시 숨김 */
@@ -168,7 +169,21 @@
         opacity: 0;
         pointer-events: none;
       }
-
+      #close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      #aisum {
+        position: absolute;
+        top: 3px;
+        right: 5px;
+        z-index: 100;
+      }
       .bubble {
         position: absolute;
         bottom: 10px;
@@ -228,31 +243,45 @@
     </style>
   </head>
   <body>
-    <div class="in-image-bg" id="inImageBg"></div>
-    <div class="in-image-ad" id="inImageAd" role="button" aria-label="광고 배너">
-      <div class="ad-content">
-        <img class="ad-logo" id="adLogo" alt="브랜드 로고" decoding="async" />
-        <div class="ad-products" id="adProduct">
-          <span class="product-image-wrapper" id="prodWrap">
-            <img class="product-image" id="prodBase" alt="제품 이미지" decoding="async" />
+    <div class='in-image-bg' id='inImageBg'>
+      <button id='close'>
+        <img src='https://static.piclick.kr/images/logos/close.png' alt='close' />
+      </button>
+    </div>
+    <div class='in-image-ad' id='inImageAd' role='button' aria-label='광고 배너'>
+      <a id='aisum' href='https://aedi.ai/' target='_blank'>
+        <img src='https://static.piclick.kr/images/logos/aisum.png' alt='aisum' />
+      </a>
+      <div class='ad-content'>
+        <img class='ad-logo' id='adLogo' alt='브랜드 로고' decoding='async' />
+        <div class='ad-products' id='adProduct'>
+          <span class='product-image-wrapper' id='prodWrap'>
+            <img class='product-image' id='prodBase' alt='제품 이미지' decoding='async' />
             <img
-              class="product-image-hover"
-              id="prodHover"
-              alt="제품 이미지(호버)"
-              decoding="async"
+              class='product-image-hover'
+              id='prodHover'
+              alt='제품 이미지(호버)'
+              decoding='async'
             />
           </span>
         </div>
 
         <!-- 가운데 텍스트 -->
-        <div class="ad-text" id="adText">시원한 레몬에이드 한 잔!</div>
+        <div class='ad-text' id='adText'>시원한 레몬에이드 한 잔!</div>
         <!-- 텍스트 아래 CTA -->
-        <button class="ad-cta" id="ctaBtn">구매하기</button>
+        <button class='ad-cta' id='ctaBtn'>구매하기</button>
       </div>
     </div>
 
     <script>
       (function () {
+        const isValidUrl = (u) => /^https?:\/\//.test(u) && !/\{.+\}/.test(u);
+
+        document.querySelector('#close').addEventListener('click', function () {
+          document.querySelector('.in-image-bg').remove();
+          document.querySelector('.in-image-ad').remove();
+        });
+
         const qs = new URLSearchParams(location.search);
         const params = {
           logo: qs.get('logo') || '{IMAGE_LOGO}',
@@ -296,6 +325,7 @@
         const prodHover = document.getElementById('prodHover');
         const adText = document.getElementById('adText');
         const ctaBtn = document.getElementById('ctaBtn');
+        const brandLink = document.getElementById('aisum');
 
         // 색, 배경
         inImageBg.style.backgroundColor = params.bg;
@@ -337,6 +367,13 @@
         applyDim(prodBase, params.productW, params.productH, params.productFit);
         applyDim(prodHover, params.hoverW, params.hoverH, params.hoverFit);
 
+        // 로고 링크 클릭 시 배너 전체 클릭 전파 방지
+        if (brandLink) {
+          brandLink.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+        }
+
         // 트래킹/오토하이드
         if (params.imp) new Image().src = params.imp;
         if (params.autohide > 0) {
@@ -346,16 +383,23 @@
           }, params.autohide * 1000);
         }
 
-        // 클릭 분기
-        if (params.click) {
-          inImageAd.addEventListener('click', () =>
-            window.open(params.click, '_blank', 'noopener')
-          );
-        }
+        // 배너 전체 클릭 (유효한 URL일 때만, 링크/버튼 클릭은 무시)
+        inImageAd.addEventListener('click', (e) => {
+          // 로고/버튼을 클릭한 경우 배너 전체 클릭은 무시
+          if (e.target.closest('#aisum') || e.target.closest('#ctaBtn')) return;
+          if (isValidUrl(params.click)) {
+            window.open(params.click, '_blank', 'noopener');
+          }
+        });
+
         if (params.cta) {
           ctaBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            window.open(params.cta, '_blank', 'noopener');
+            if (isValidUrl(params.cta)) {
+              window.open(params.cta, '_blank', 'noopener');
+            } else {
+              alert('광고 클릭! 광고주 웹사이트로 이동합니다.');
+            }
           });
         }
 
@@ -382,9 +426,9 @@
 
         // 호버: 텍스트1/2 표시 + 색상 적용 + 버블 가속
         inImageAd.addEventListener('mouseenter', () => {
-          adText.innerHTML = `<div class="ad-line1" id="line1">${escapeHtml(params.line1)}</div>
-             <div class="ad-line2" id="line2">
-               <span class="font-g">${escapeHtml(params.line2)}</span>
+          adText.innerHTML = `<div class='ad-line1' id='line1'>${escapeHtml(params.line1)}</div>
+             <div class='ad-line2' id='line2'>
+               <span class='font-g'>${escapeHtml(params.line2)}</span>
                
              </div>`;
 
@@ -423,7 +467,7 @@
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt/')
             .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&quot;')
             .replace(/'/g, '&#39;');
         }
 
