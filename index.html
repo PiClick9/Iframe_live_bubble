@@ -257,7 +257,7 @@
         const params = {
           logo: qs.get('logo') || '{IMAGE_LOGO}',
           product: qs.get('product') || '{IMAGE1}',
-          hover: qs.get('hover') || '{IMAGE2}',
+          product2: qs.get('product2') || '{IMAGE2}',
           brand: qs.get('brand') || '{NAME}',
           line1: qs.get('line1') || '{TEXT1}',
           line2: qs.get('line2') || '{TEXT2}',
@@ -304,7 +304,7 @@
         // 이미지/텍스트
         adLogo.src = params.logo;
         prodBase.src = params.product;
-        prodHover.src = params.hover;
+        prodHover.src = params.product2;
         adText.textContent = params.brand;
 
         // CTA 세팅
@@ -393,6 +393,7 @@
           const l2 = document.getElementById('line2');
           if (l1) l1.style.color = params.lineClolor1;
           if (l2) l2.style.color = params.lineClolor2;
+          adText.style.top = '50%';
 
           stopDefaultBubbles();
           if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
@@ -411,6 +412,7 @@
         // 호버 해제: 브랜드명 복귀 + 버블 기본 모드
         inImageAd.addEventListener('mouseleave', () => {
           adText.textContent = `${escapeHtml(params.brand)}`;
+          adText.style.removeProperty('top');
           if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
           hoverBubbleInterval = null;
           startDefaultBubbles();
