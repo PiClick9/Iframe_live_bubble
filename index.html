@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang='ko'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no' />
     <title>In-Image Ad v2</title>
     <style>
       * {
@@ -24,7 +24,7 @@
         position: absolute;
         bottom: 0;
         width: 100%;
-        height: 63px;
+        height: 80px;
         background-color: #ffe882;
         z-index: 5;
         transform: translateY(100%);
@@ -95,10 +95,17 @@
         border-radius: 10px;
       }
       .product-image {
-        width: 90px;
-        height: 90%;
+        width: 72px;
+        height: 80px;
         object-fit: contain;
         z-index: 15;
+        transition: transform 0.3s ease; /* 확대 애니메이션 */
+        will-change: transform;
+        transform-origin: bottom center;
+      }
+      /* 1) 데스크톱/일반: 호버 시 1.3배 */
+      .in-image-ad:hover .product-image {
+        transform: scale(1.4);
       }
       .product-image-hover {
         position: absolute;
@@ -177,6 +184,12 @@
         border: none;
         padding: 0;
         cursor: pointer;
+        width: 14px;
+        height: 14px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
       #aisum {
         position: absolute;
@@ -190,7 +203,7 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background-color: rgba(0, 150, 136, 0.3);
+        background-color: var(--bubble-color, rgba(0, 150, 136, 0.3));
         animation: bubbleUp 2s ease forwards;
         z-index: 1;
         pointer-events: none;
@@ -220,7 +233,7 @@
           transform: translateX(-100%);
         }
         100% {
-          left: 20px;
+          left: 10px;
           transform: none;
         }
       }
@@ -230,7 +243,7 @@
           transform: translateX(100%);
         }
         100% {
-          right: 0;
+          right: 10px;
           transform: none;
         }
       }
@@ -239,37 +252,47 @@
         .in-image-ad {
           height: 80px;
         }
+        /* 2) 404px 미만: 항상 1.3배 (시각 효과만 CSS로 강제) */
+        .product-image {
+          transform: scale(1.3);
+        }
+        /* CTA는 호버 상태처럼 숨김 */
+        .ad-cta {
+          opacity: 0;
+          pointer-events: none;
+        }
+        /* (hover 이미지 요소가 있다면) 노출 */
+        .product-image-hover {
+          opacity: 1;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="in-image-bg" id="inImageBg">
-      <button id="close">
-        <img src="https://static.piclick.kr/images/logos/close.png" alt="close" />
+    <div class='in-image-bg' id='inImageBg'>
+      <button id='close'>
+        <img src='https://static.piclick.kr/images/logos/close.png' alt='close' />
       </button>
     </div>
-    <div class="in-image-ad" id="inImageAd" role="button" aria-label="광고 배너">
-      <a id="aisum" href="https://aedi.ai/" target="_blank">
-        <img src="https://static.piclick.kr/images/logos/aisum.png" alt="aisum" />
+    <div class='in-image-ad' id='inImageAd' role='button' aria-label='광고 배너'>
+      <a id='aisum' href='https://aedi.ai/' target='_blank'>
+        <img src='https://static.piclick.kr/images/logos/aisum.png' alt='aisum' />
       </a>
-      <div class="ad-content">
-        <img class="ad-logo" id="adLogo" alt="브랜드 로고" decoding="async" />
-        <div class="ad-products" id="adProduct">
-          <span class="product-image-wrapper" id="prodWrap">
-            <img class="product-image" id="prodBase" alt="제품 이미지" decoding="async" />
-            <img
-              class="product-image-hover"
-              id="prodHover"
-              alt="제품 이미지(호버)"
-              decoding="async"
-            />
+      <div class='ad-content'>
+        <img class='ad-logo' id='adLogo' alt='브랜드 로고' decoding='async' />
+        <div class='ad-products' id='adProduct'>
+          <span class='product-image-wrapper' id='prodWrap'>
+            <img class='product-image' id='prodBase' alt='제품 이미지' decoding='async' />
+            <!-- 필요 시 호버 이미지 사용
+            <img class='product-image-hover' id='prodHover' alt='제품 이미지(호버)' decoding='async' />
+            -->
           </span>
         </div>
 
         <!-- 가운데 텍스트 -->
-        <div class="ad-text" id="adText">시원한 레몬에이드 한 잔!</div>
+        <div class='ad-text' id='adText'>시원한 레몬에이드 한 잔!</div>
         <!-- 텍스트 아래 CTA -->
-        <button class="ad-cta" id="ctaBtn">구매하기</button>
+        <button class='ad-cta' id='ctaBtn'>구매하기</button>
       </div>
     </div>
 
@@ -314,6 +337,7 @@
           hoverW: qs.get('hoverW') || '',
           hoverH: qs.get('hoverH') || '',
           hoverFit: qs.get('hoverFit') || '',
+          bubbleColor: qs.get('bubbleColor') || '#ffae00',
         };
 
         const inImageAd = document.getElementById('inImageAd');
@@ -322,7 +346,7 @@
         const adProduct = document.getElementById('adProduct');
         const prodWrap = document.getElementById('prodWrap');
         const prodBase = document.getElementById('prodBase');
-        const prodHover = document.getElementById('prodHover');
+        // const prodHover = document.getElementById('prodHover');
         const adText = document.getElementById('adText');
         const ctaBtn = document.getElementById('ctaBtn');
         const brandLink = document.getElementById('aisum');
@@ -334,7 +358,7 @@
         // 이미지/텍스트
         adLogo.src = params.logo;
         prodBase.src = params.product;
-        prodHover.src = params.product2;
+        // if (prodHover) prodHover.src = params.product2;
         adText.textContent = params.brand;
 
         // CTA 세팅
@@ -365,14 +389,10 @@
         if (params.productW) prodWrap.style.width = params.productW;
         if (params.productH) prodWrap.style.height = params.productH;
         applyDim(prodBase, params.productW, params.productH, params.productFit);
-        applyDim(prodHover, params.hoverW, params.hoverH, params.hoverFit);
+        // applyDim(prodHover, params.hoverW, params.hoverH, params.hoverFit);
 
         // 로고 링크 클릭 시 배너 전체 클릭 전파 방지
-        if (brandLink) {
-          brandLink.addEventListener('click', (e) => {
-            e.stopPropagation();
-          });
-        }
+        brandLink?.addEventListener('click', (e) => e.stopPropagation());
 
         // 트래킹/오토하이드
         if (params.imp) new Image().src = params.imp;
@@ -403,73 +423,93 @@
           });
         }
 
-        // 버블
+        // ====== 버블 ======
+        if (params.bubbleColor) {
+          // inImageAd(배너 루트)에만 적용하면 이 배너 인스턴스에 한정되어 안전합니다.
+          inImageAd.style.setProperty('--bubble-color', params.bubbleColor);
+        }
         let defaultBubbleInterval = null,
           hoverBubbleInterval = null;
+        function emitBubbles(count, leftMinPct, leftRangePct) {
+          for (let i = 0; i < count; i++) {
+            const b = document.createElement('span');
+            b.className = 'bubble';
+            b.style.left = `${Math.random() * leftRangePct + leftMinPct}%`;
+            b.style.animationDelay = `${Math.random()}s`;
+            inImageAd.appendChild(b);
+            b.addEventListener('animationend', () => b.remove());
+          }
+        }
         function startDefaultBubbles() {
           if (defaultBubbleInterval) return;
-          defaultBubbleInterval = setInterval(() => {
-            for (let i = 0; i < 3; i++) {
-              const b = document.createElement('span');
-              b.className = 'bubble';
-              b.style.left = `${Math.random() * 20 + 75}%`;
-              b.style.animationDelay = `${Math.random()}s`;
-              inImageAd.appendChild(b);
-              b.addEventListener('animationend', () => b.remove());
-            }
-          }, 3000);
+          defaultBubbleInterval = setInterval(() => emitBubbles(3, 85, 14), 3000);
         }
         function stopDefaultBubbles() {
           if (defaultBubbleInterval) clearInterval(defaultBubbleInterval);
           defaultBubbleInterval = null;
         }
+        function startHoverBubbles() {
+          if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
+          hoverBubbleInterval = setInterval(() => emitBubbles(5, 75, 20), 500);
+        }
+        function stopHoverBubbles() {
+          if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
+          hoverBubbleInterval = null;
+        }
 
-        // 호버: 텍스트1/2 표시 + 색상 적용 + 버블 가속
-        inImageAd.addEventListener('mouseenter', () => {
+        // ====== 텍스트 교체/호버 상태 함수화 ======
+        function escapeHtml(s) {
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/'/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        function applyHoverState() {
           adText.innerHTML = `<div class='ad-line1' id='line1'>${escapeHtml(params.line1)}</div>
-             <div class='ad-line2' id='line2'>
-               <span class='font-g'>${escapeHtml(params.line2)}</span>
-               
-             </div>`;
-
-          // 새로 삽입된 엘리먼트 색상 적용
+             <div class='ad-line2' id='line2'><span class='font-g'>${escapeHtml(
+               params.line2
+             )}</span></div>`;
           const l1 = document.getElementById('line1');
           const l2 = document.getElementById('line2');
           if (l1) l1.style.color = params.lineClolor1;
           if (l2) l2.style.color = params.lineClolor2;
           adText.style.top = '50%';
-
+          // CTA는 CSS에서 이미 숨김 처리(모바일 포함). 데스크톱 호버는 CSS가 처리.
           stopDefaultBubbles();
-          if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
-          hoverBubbleInterval = setInterval(() => {
-            for (let i = 0; i < 5; i++) {
-              const b = document.createElement('span');
-              b.className = 'bubble';
-              b.style.left = `${Math.random() * 14 + 85}%`;
-              b.style.animationDelay = `${Math.random()}s`;
-              inImageAd.appendChild(b);
-              b.addEventListener('animationend', () => b.remove());
-            }
-          }, 500);
-        });
+          startHoverBubbles();
+        }
 
-        // 호버 해제: 브랜드명 복귀 + 버블 기본 모드
-        inImageAd.addEventListener('mouseleave', () => {
+        function applyDefaultState() {
           adText.textContent = `${escapeHtml(params.brand)}`;
           adText.style.removeProperty('top');
-          if (hoverBubbleInterval) clearInterval(hoverBubbleInterval);
-          hoverBubbleInterval = null;
+          stopHoverBubbles();
           startDefaultBubbles();
-        });
-
-        function escapeHtml(s) {
-          return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt/')
-            .replace(/>/g, '&gt;')
-            .replace(/'/g, '&quot;')
-            .replace(/'/g, '&#39;');
         }
+
+        // ====== 강제 호버 모드(600px 미만에서 항상 호버 상태) ======
+        let forceHover = false;
+        function syncForceHoverByWidth() {
+          const isNarrow = window.innerWidth < 600;
+          if (isNarrow && !forceHover) {
+            forceHover = true;
+            applyHoverState();
+          } else if (!isNarrow && forceHover) {
+            forceHover = false;
+            applyDefaultState();
+          }
+        }
+        window.addEventListener('resize', syncForceHoverByWidth);
+
+        // ====== 실제 호버 이벤트 ======
+        inImageAd.addEventListener('mouseenter', () => {
+          if (!forceHover) applyHoverState();
+        });
+        inImageAd.addEventListener('mouseleave', () => {
+          if (!forceHover) applyDefaultState();
+        });
 
         // 표시
         function showBanner() {
