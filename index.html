@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang='ko'>
+<html lang="ko">
   <head>
-    <meta charset='UTF-8' />
-    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no' />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>In-Image Ad v2</title>
     <style>
       * {
@@ -269,20 +269,20 @@
     </style>
   </head>
   <body>
-    <div class='in-image-bg' id='inImageBg'>
-      <button id='close'>
-        <img src='https://static.piclick.kr/images/logos/close.png' alt='close' />
+    <div class="in-image-bg" id="inImageBg">
+      <button id="close">
+        <img src="https://static.piclick.kr/images/logos/close.png" alt="close" />
       </button>
     </div>
-    <div class='in-image-ad' id='inImageAd' role='button' aria-label='광고 배너'>
-      <a id='aisum' href='https://aedi.ai/' target='_blank'>
-        <img src='https://static.piclick.kr/images/logos/aisum.png' alt='aisum' />
+    <div class="in-image-ad" id="inImageAd" role="button" aria-label="광고 배너">
+      <a id="aisum" href="https://aedi.ai/" target="_blank">
+        <img src="https://static.piclick.kr/images/logos/aisum.png" alt="aisum" />
       </a>
-      <div class='ad-content'>
-        <img class='ad-logo' id='adLogo' alt='브랜드 로고' decoding='async' />
-        <div class='ad-products' id='adProduct'>
-          <span class='product-image-wrapper' id='prodWrap'>
-            <img class='product-image' id='prodBase' alt='제품 이미지' decoding='async' />
+      <div class="ad-content">
+        <img class="ad-logo" id="adLogo" alt="브랜드 로고" decoding="async" />
+        <div class="ad-products" id="adProduct">
+          <span class="product-image-wrapper" id="prodWrap">
+            <img class="product-image" id="prodBase" alt="제품 이미지" decoding="async" />
             <!-- 필요 시 호버 이미지 사용
             <img class='product-image-hover' id='prodHover' alt='제품 이미지(호버)' decoding='async' />
             -->
@@ -290,9 +290,9 @@
         </div>
 
         <!-- 가운데 텍스트 -->
-        <div class='ad-text' id='adText'>시원한 레몬에이드 한 잔!</div>
+        <div class="ad-text" id="adText">시원한 레몬에이드 한 잔!</div>
         <!-- 텍스트 아래 CTA -->
-        <button class='ad-cta' id='ctaBtn'>구매하기</button>
+        <button class="ad-cta" id="ctaBtn">구매하기</button>
       </div>
     </div>
 
@@ -313,9 +313,9 @@
           brand: qs.get('brand') || '{NAME}',
           line1: qs.get('line1') || '{TEXT1}',
           line2: qs.get('line2') || '{TEXT2}',
-          nameClolor: qs.get('nameClolor') || '#000',
-          lineClolor1: qs.get('lineClolor1') || '#000',
-          lineClolor2: qs.get('lineClolor2') || '#ffae00',
+          nameClolor: qs.get('nameClolor') || '{NAME_COLOR}',
+          lineClolor1: qs.get('lineClolor1') || '{TEXT_COLOR1}',
+          lineClolor2: qs.get('lineClolor2') || '{TEXT_COLOR2}',
           ctaText: qs.get('ctaText') || '구매하기',
           ctaBg: qs.get('ctaBg') || '{BUTTON_BACKGROUND_COLOR}',
           ctaColor: qs.get('ctaColor') || '{BUTTON_TEXT_COLOR}',
